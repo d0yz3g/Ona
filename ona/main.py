@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.health import router as health_router
+from ona.api.health import router as health_router
 from api.telegram_webhook import router as telegram_router
 from config.settings import DEBUG
 
