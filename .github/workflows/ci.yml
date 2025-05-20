@@ -28,10 +28,10 @@ jobs:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
-            if [ ! -d "~/Ona" ]; then
-              git clone https://github.com/d0yz3g/Ona.git ~/Ona
+            if [ ! -d "$HOME/Ona" ]; then
+              git clone https://github.com/d0yz3g/Ona.git $HOME/Ona
             fi
-            cd ~/Ona
+            cd $HOME/Ona
             git pull --rebase origin master
 
             python3 -m venv venv
