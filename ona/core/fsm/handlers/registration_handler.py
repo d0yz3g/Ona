@@ -67,7 +67,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_router
         
         # Приветствие и запрос даты рождения (согласно work-plan)
         await update.message.reply_text(
@@ -87,7 +87,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_router
         
         # Проверка формата даты рождения
         birth_date_text = update.message.text.strip()
@@ -144,7 +144,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_router
         
         birth_time_text = update.message.text.strip()
         
@@ -200,7 +200,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_router
         
         birth_place = update.message.text.strip()
         
@@ -234,7 +234,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_router
         
         age_text = update.message.text.strip()
         
