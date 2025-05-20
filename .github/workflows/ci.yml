@@ -19,7 +19,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DO_SSH_KEY }}
 
-      - name: Deploy to DigitalOcean via SSH
+      - name: Deploy to server
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -45,3 +45,4 @@ EOT
             pkill -f "uvicorn ona.main:app" || true
             nohup uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
           EOF
+
