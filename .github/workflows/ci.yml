@@ -9,25 +9,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-asyncio pytest-cov
-        
+
     - name: Run tests
       run: |
         pytest tests/ --cov=core --cov-report=xml
-        
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -38,15 +38,30 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v20
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.9.0
       with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./
-        vercel-args: '--prod' 
+        ssh-private-key: ${{ secrets.DO_SSH_KEY }}
+
+    - name: Deploy to DigitalOcean via SSH
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
+          cd ~/Ona || git clone https://github.com/d0yz3g/Ona.git && cd Ona
+          git pull origin main
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY }}" >> .env
+
+          pkill -f "python run.py" || true
+          nohup python run.py > app.log 2>&1 &
+        EOF
