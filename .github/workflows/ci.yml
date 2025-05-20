@@ -31,7 +31,6 @@ jobs:
             if [ ! -d "~/Ona" ]; then
               git clone https://github.com/d0yz3g/Ona.git ~/Ona
             fi
-
             cd ~/Ona
             git pull --rebase origin master
 
@@ -40,11 +39,11 @@ jobs:
             pip install -r requirements.txt
 
             cat <<EOT > .env
-OPENAI_API_KEY=$OPENAI_API_KEY
-SUPABASE_URL=$SUPABASE_URL
-SUPABASE_KEY=$SUPABASE_KEY
-TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
-ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY
+OPENAI_API_KEY=${OPENAI_API_KEY}
+SUPABASE_URL=${SUPABASE_URL}
+SUPABASE_KEY=${SUPABASE_KEY}
+TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
 EOT
 
             pkill -f "uvicorn ona.main:app" || true
