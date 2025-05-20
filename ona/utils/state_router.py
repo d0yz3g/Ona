@@ -1,8 +1,8 @@
 from telegram import Update
 import logging
-from utils.handlers import InitialHandler, AwaitingInputHandler
-from core.fsm.handlers.registration_handler import RegistrationHandler, STATES as REGISTRATION_STATES
-from core.fsm.handlers.profiling_psychology_handler import ProfilingPsychologyHandler, STATE as PSYCHOLOGY_STATE
+from ona.utils.handlers import InitialHandler, AwaitingInputHandler
+from ona.core.fsm.handlers.registration_handler import RegistrationHandler, STATES as REGISTRATION_STATES
+from ona.core.fsm.handlers.profiling_psychology_handler import ProfilingPsychologyHandler, STATE as PSYCHOLOGY_STATE
 
 logger = logging.getLogger(__name__)
 
