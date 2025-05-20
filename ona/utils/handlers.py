@@ -70,7 +70,7 @@ class InitialHandler(BaseHandler):
         )
         
         # Изменение состояния пользователя
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_router
         await self.set_next_state(update, state_router)
 
 
