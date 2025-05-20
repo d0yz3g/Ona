@@ -25,8 +25,6 @@ class TelegramService:
         self.app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
         
     async def setup_handlers(self):
-        #УДАЛИТЬ ПОТОМ
-        from telegram.ext import MessageHandler, filters
         """
         Настройка обработчиков команд и сообщений
         """
@@ -121,7 +119,9 @@ class TelegramService:
         Обработка ошибок
         """
         logger.error(f"Ошибка при обработке запроса: {context.error}")
-    
+    async def debug_handler(self, update: Update, context):
+    print(f"\n📩 ПРИШЛО ОБНОВЛЕНИЕ: {update}")
+
     async def start_polling(self):
         """
         Запуск бота в режиме long polling
