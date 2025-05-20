@@ -25,6 +25,8 @@ class TelegramService:
         self.app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
         
     async def setup_handlers(self):
+        #УДАЛИТЬ ПОТОМ
+        from telegram.ext import MessageHandler, filters
         """
         Настройка обработчиков команд и сообщений
         """
@@ -43,6 +45,8 @@ class TelegramService:
         
         # Обработчик ошибок
         self.app.add_error_handler(self.error_handler)
+        #УДАЛИТЬ ПОТОМ
+        self.app.add_handler(MessageHandler(filters.ALL, self.debug_handler))
     
     async def start_command(self, update: Update, context):
         """
