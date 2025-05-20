@@ -72,11 +72,12 @@ class TelegramService:
         logger.error(f"Ошибка при обработке запроса: {context.error}")
 
     def start_polling(self):
-        import asyncio
-        asyncio.run(self._start_polling())
+    import asyncio
+    asyncio.run(self._start_polling())
 
-    async def _start_polling(self):
-        await self.setup_handlers()
-        await self.app.run_polling()
+async def _start_polling(self):
+    await self.setup_handlers()
+    await self.app.run_polling()
+
 
 
