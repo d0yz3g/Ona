@@ -50,10 +50,20 @@ class SubscriptionService:
             if not payment_info:
                 logger.error(f"Не удалось создать платеж для пользователя {telegram_id}")
                 return None
+
+            # Находим пользователя по telegram_id
+            user_result = supabase.table("users").select("id").eq("telegram_id", telegram_id).execute()
+            
+            if not user_result.data or len(user_result.data) == 0:
+                logger.error(f"Пользователь с telegram_id {telegram_id} не найден")
+                return None
+                
+            user_id = user_result.data[0]["id"]
             
             # Сохраняем информацию о подписке
             subscription_data = {
                 "telegram_id": telegram_id,
+                "user_id": user_id,
                 "plan_type": plan_type,
                 "payment_id": payment_info["payment_id"],
                 "order_id": payment_info["order_id"],
@@ -63,7 +73,12 @@ class SubscriptionService:
                 "price": self.SUBSCRIPTION_PRICES[plan_type]
             }
             
-            # TODO: Сохранить в базу данных
+            # Сохраняем в базу данных
+            subscription_result = supabase.table("subscriptions").insert(subscription_data).execute()
+            
+            if not subscription_result.data or len(subscription_result.data) == 0:
+                logger.error(f"Ошибка при сохранении подписки для пользователя {telegram_id}")
+                return None
             
             return {
                 "subscription_id": payment_info["payment_id"],
@@ -94,17 +109,33 @@ class SubscriptionService:
                 return False
             
             # TODO: Получить данные подписки из базы по payment_id
+
+            # Получаем данные подписки из базы по payment_id
+            subscription_result = supabase.table("subscriptions").select("*").eq("payment_id", payment_id).execute()
+            
+            if not subscription_result.data or len(subscription_result.data) == 0:
+                logger.error(f"Подписка с payment_id {payment_id} не найдена")
+                return False
+                
+            subscription = subscription_result.data[0]
+            
+            # Определяем длительность подписки
+            plan_type = subscription["plan_type"]
+            if plan_type not in self.SUBSCRIPTION_TYPES:
+                plan_type = "basic"
+              
             
             # Устанавливаем дату окончания подписки
             subscription_data = {
                 "status": "active",
-                "activated_at": datetime.utcnow(),
-                "expires_at": datetime.utcnow() + timedelta(days=self.SUBSCRIPTION_TYPES["basic"])
+                "start_date": datetime.utcnow(),
+                "end_date": datetime.utcnow() + timedelta(days=self.SUBSCRIPTION_TYPES[plan_type])
             }
             
-            # TODO: Обновить данные в базе
+            # Обновляем данные в базе
+            update_result = supabase.table("subscriptions").update(subscription_data).eq("payment_id", payment_id).execute()
             
-            return True
+            return update_result.data and len(update_result.data) > 0
             
         except Exception as e:
             logger.error(f"Ошибка при активации подписки: {e}")
@@ -122,12 +153,35 @@ class SubscriptionService:
         """
         try:
             # TODO: Получить данные подписки из базы
+            # Находим пользователя по telegram_id
+            user_result = supabase.table("users").select("id").eq("telegram_id", telegram_id).execute()
+            
+            if not user_result.data or len(user_result.data) == 0:
+                logger.error(f"Пользователь с telegram_id {telegram_id} не найден")
+                return None
+                
+            user_id = user_result.data[0]["id"]
+            
+            # Получаем данные подписки из базы
+            subscription_result = supabase.table("subscriptions")\
+                .select("*")\
+                .eq("user_id", user_id)\
+                .eq("status", "active")\
+                .order("end_date", desc=True)\
+                .limit(1)\
+                .execute()
+            
+            if not subscription_result.data or len(subscription_result.data) == 0:
+                return None
+                
+            subscription_data = subscription_result.data[0]
             
             # Проверяем срок действия
-            if subscription_data["expires_at"] < datetime.utcnow():
+            if subscription_data["end_date"] and datetime.fromisoformat(subscription_data["end_date"]) < datetime.utcnow():
                 subscription_data["status"] = "expired"
-                # TODO: Обновить статус в базе
-            
+             # Обновляем статус в базе
+                supabase.table("subscriptions").update({"status": "expired"}).eq("id", subscription_data["id"]).execute()
+                
             return subscription_data
             
         except Exception as e:
@@ -146,18 +200,23 @@ class SubscriptionService:
         """
         try:
             # TODO: Получить данные подписки из базы
+            # Получаем данные подписки из базы
+            subscription_data = await self.check_subscription(telegram_id)
             
             if not subscription_data or subscription_data["status"] != "active":
                 logger.error(f"Нет активной подписки для пользователя {telegram_id}")
                 return False
             
             # Обновляем статус подписки
-            subscription_data["status"] = "cancelled"
-            subscription_data["cancelled_at"] = datetime.utcnow()
+            update_data = {
+                "status": "cancelled",
+                "cancelled_at": datetime.utcnow().isoformat()
+            }
             
-            # TODO: Обновить данные в базе
+            # Обновляем данные в базе
+            update_result = supabase.table("subscriptions").update(update_data).eq("id", subscription_data["id"]).execute()
             
-            return True
+            return update_result.data and len(update_result.data) > 0
             
         except Exception as e:
             logger.error(f"Ошибка при отмене подписки: {e}")
@@ -174,15 +233,19 @@ class SubscriptionService:
             Optional[Dict]: Информация о подписке или None если подписка не найдена
         """
         try:
-            # TODO: Получить данные подписки из базы
+            # Получаем данные подписки из базы
+            subscription_data = await self.check_subscription(telegram_id)
             
             if not subscription_data:
                 return None
             
             # Добавляем дополнительную информацию
+            end_date = datetime.fromisoformat(subscription_data["end_date"]) if subscription_data["end_date"] else None
+            days_left = (end_date - datetime.utcnow()).days if end_date and subscription_data["status"] == "active" else 0
+            
             subscription_info = {
                 **subscription_data,
-                "days_left": (subscription_data["expires_at"] - datetime.utcnow()).days if subscription_data["status"] == "active" else 0,
+                "days_left": days_left,
                 "is_active": subscription_data["status"] == "active",
                 "price": self.SUBSCRIPTION_PRICES[subscription_data["plan_type"]]
             }
