@@ -1,9 +1,9 @@
 from telegram import Bot, Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
-from config.settings import TELEGRAM_BOT_TOKEN
-from utils.state_router import state_router
-from core.fsm.handlers.registration_handler import STATES as REGISTRATION_STATES
-from core.fsm.handlers.profiling_psychology_handler import STATE as PSYCHOLOGY_STATE
+from ona.config.settings import TELEGRAM_BOT_TOKEN
+from ona.utils.state_router import state_router
+from ona.core.fsm.handlers.registration_handler import STATES as REGISTRATION_STATES
+from ona.core.fsm.handlers.profiling_psychology_handler import STATE as PSYCHOLOGY_STATE
 import logging
 
 # Настройка логирования
