@@ -62,14 +62,13 @@ class SubscriptionService:
             
             # Сохраняем информацию о подписке
             subscription_data = {
-                "telegram_id": telegram_id,
                 "user_id": user_id,
                 "plan_type": plan_type,
                 "payment_id": payment_info["payment_id"],
                 "order_id": payment_info["order_id"],
                 "status": "pending",  # Ожидает оплаты
-                "created_at": datetime.utcnow(),
-                "expires_at": None,  # Будет установлено после подтверждения оплаты
+                "start_date": datetime.utcnow(),
+                "end_date": None,
                 "price": self.SUBSCRIPTION_PRICES[plan_type]
             }
             
