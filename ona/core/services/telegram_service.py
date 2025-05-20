@@ -71,6 +71,6 @@ class TelegramService:
     async def error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Ошибка при обработке запроса: {context.error}")
 
-    async def start_polling(self):
-        await self.setup_handlers()
-        await self.app.run_polling()
+    def start_polling(self):
+    self.app.run_polling()
+
