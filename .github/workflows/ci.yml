@@ -27,22 +27,22 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} << EOF
-            cd ~/Ona || git clone https://github.com/d0yz3g/Ona.git && cd Ona
-            git pull --rebase origin master
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install -r requirements.txt
+          bash -c '
+            ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} "
+              cd ~/Ona || git clone https://github.com/d0yz3g/Ona.git && cd Ona
+              git pull --rebase origin master
+              python3 -m venv venv
+              source venv/bin/activate
+              pip install -r requirements.txt
 
-            cat <<EOT > .env
-OPENAI_API_KEY=$OPENAI_API_KEY
-SUPABASE_URL=$SUPABASE_URL
-SUPABASE_KEY=$SUPABASE_KEY
-TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
-ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY
-EOT
+              echo OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} > .env
+              echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env
+              echo SUPABASE_KEY=${{ secrets.SUPABASE_KEY }} >> .env
+              echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} >> .env
+              echo ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY }} >> .env
 
-            pkill -f "uvicorn ona.main:app" || true
-            nohup uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
-          EOF
+              pkill -f \\"uvicorn ona.main:app\\" || true
+              nohup uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
+            "
+          '
 
