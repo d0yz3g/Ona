@@ -29,7 +29,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
             cd ~/Ona || git clone https://github.com/d0yz3g/Ona.git && cd Ona
-            git pull origin master
+            git pull --rebase origin master
             python3 -m venv venv
             source venv/bin/activate
             pip install -r requirements.txt
@@ -43,5 +43,5 @@ ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY
 EOT
 
             pkill -f "uvicorn ona.main:app" || true
-            nohup PYTHONPATH=. uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
+            nohup uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
           EOF
