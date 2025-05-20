@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
-from config.settings import TELEGRAM_BOT_TOKEN
-from core.services.telegram_service import TelegramService
+from ona.config.settings import TELEGRAM_BOT_TOKEN
+from ona.core.services.telegram_service import TelegramService
 import logging
 
 logger = logging.getLogger(__name__)
