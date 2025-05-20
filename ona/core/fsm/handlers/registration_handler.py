@@ -35,7 +35,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from ona.utils.state_router import state_route
+        from ona.utils.state_router import state_router
         
         # Определяем текущее подсостояние пользователя
         current_state = await state_router.get_user_state(user_id)
