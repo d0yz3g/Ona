@@ -24,6 +24,7 @@ class Settings:
     # Настройки приложения
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
     ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+    BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
     # Настройки платежной системы
     PAYMENT_PROVIDER_KEY = os.getenv("PAYMENT_PROVIDER_KEY", "")
