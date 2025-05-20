@@ -1,6 +1,6 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from ..state_handler import StateHandler
-from core.services.profile_service import profile_service
+from ona.core.fsm.state_handler import StateHandler
+from ona.core.services.profile_service import profile_service
 from datetime import datetime
 import logging
 import re
@@ -35,7 +35,7 @@ class RegistrationHandler(StateHandler):
             update: Обновление от Telegram
         """
         user_id = update.effective_user.id
-        from utils.state_router import state_router
+        from ona.utils.state_router import state_route
         
         # Определяем текущее подсостояние пользователя
         current_state = await state_router.get_user_state(user_id)
