@@ -11,29 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.DO_SSH_KEY }}
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DO_SSH_KEY }}
 
-    - name: Deploy to DigitalOcean via SSH
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} << EOF
-          cd ~/Ona || git clone https://github.com/d0yz3g/Ona.git && cd Ona
-          git pull --rebase origin master
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
+      - name: Deploy to DigitalOcean via SSH
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_SERVER_IP }} << EOF
+            cd ~/Ona || git clone https://github.com/d0yz3g/Ona.git && cd Ona
+            git pull --rebase origin master
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
 
-          cat <<EOT > .env
+            cat <<EOT > .env
 OPENAI_API_KEY=$OPENAI_API_KEY
 SUPABASE_URL=$SUPABASE_URL
 SUPABASE_KEY=$SUPABASE_KEY
@@ -41,6 +41,6 @@ TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
 ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY
 EOT
 
-          pkill -f "uvicorn ona.main:app" || true
-          nohup uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
-        EOF
+            pkill -f "uvicorn ona.main:app" || true
+            nohup uvicorn ona.main:app --host 0.0.0.0 --port 8000 > app.log 2>> error.log &
+          EOF
