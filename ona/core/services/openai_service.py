@@ -6,7 +6,7 @@ import os
 from typing import List, Dict, Optional
 from openai import AsyncOpenAI
 from datetime import datetime
-from core.db.supabase_client import supabase
+#from core.db.supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
